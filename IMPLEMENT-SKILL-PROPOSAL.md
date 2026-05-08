@@ -8,9 +8,9 @@ Sister skill to `figma-to-code-mapping`. Builds on the mapping-output produced b
 
 `figma-to-code-mapping` (this repo) has scope: **document the relationship between Figma and existing code**. Verbs: document, detect, inventory, mark, link, capture.
 
-What developers (Pelle's test, real-world Figma sessions) also need: **enforce that relationship at code-emit time**. Verbs: refuse, translate, apply, search-and-adopt, hoist.
+What developers also need (per real-world Figma sessions and developer-test feedback): **enforce that relationship at code-emit time**. Verbs: refuse, translate, apply, search-and-adopt, hoist.
 
-Mixing both in one skill caused expectation-failures (Pelle assumed figma2code would handle implementation; it doesn't). Renaming this skill to `figma-to-code-mapping` (v3.0) signals the half-of-pipeline intent. The other half lives here.
+Mixing both in one skill caused expectation-failures — developers assumed figma2code would handle implementation; it doesn't. Renaming the mapping skill to `figma-to-code-mapping` (v3.0) signals the half-of-pipeline intent. The other half lives here.
 
 **Pattern:** mapping enables, implementation enforces. Mapping is the data layer; implementation is the policy layer that consumes it.
 
@@ -169,6 +169,6 @@ After implement skill ships:
 
 **Not started.** This document is the entry point when we begin. Living document — update as design questions get resolved.
 
-**Estimated effort to first usable version:** 2-3 design sessions + 1 implementation pass on a real project (e.g., WorQX or Pelle's project). ~Same scale as the v3.0 mapping skill is now.
+**Estimated effort to first usable version:** 2-3 design sessions + 1 implementation pass on a real project. ~Same scale as the v3.0 mapping skill is now.
 
 **Owner:** TBD.
