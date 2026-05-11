@@ -107,12 +107,15 @@ Deliverables in `SKILL.md`:
 
 Deliverables in `templates/`:
 - `emit-trace.md` — template voor het commit/PR-blok (welke mapping-bronnen, welke nodeIds, welke drifts gesurfaced)
-- `component-missing-drift.md` — wat te schrijven naar `drifts.md` van de mapping repo wanneer B4.1 halt
-- `pattern-adoption-note.md` — vorm van het "ik heb pattern X uit file Y geadopteerd"-notitie voor B5
 - `pre-emit-checklist.md` — de 8-point check als invulbaar lijstje voor `check`-mode
 - `post-emit-visual-check.md` — checklist voor B8 (layout, typo, kleur, states, responsive, assets, a11y)
+- `claude-md-snippet.md` — paste-block voor project CLAUDE.md (additive op mapping skill snippet)
+- `pattern-adoption-note.md` — vorm van het "ik heb pattern X uit file Y geadopteerd"-notitie voor B5
 
-**Acceptatie:** elke halt-conditie (component-missing, verify-queue blocker, geen pattern gevonden) heeft een gestandaardiseerd output-formaat.
+**Niet meer in lijst (vroeger gepland, nu geschrapt):**
+- ~~`component-missing-drift.md`~~ — implement schrijft nooit zelf naar mapping's `drifts.md`. Bij Path C halt route je naar mapping skill; die schrijft de drift-row in zijn eigen `drifts.md` template-format. Onze versie zou duplicaat zijn.
+
+**Acceptatie:** elke halt-conditie (verify-queue blocker, geen pattern gevonden) heeft een gestandaardiseerd output-formaat; B7 emit + traceability heeft een herhaalbaar commit-format; B8 visual-check is reproduceerbaar.
 
 ---
 
