@@ -190,7 +190,7 @@ For each Figma element in the frame, in atomic-order (Page > Template > Organism
 
 #### B4.1 Component-lookup — three paths
 
-**Path A — direct mapping match.** Cache `mapped_to_component` field or `components.md` row links this node to a code-component. Match → consume.
+**Path A — direct mapping match.** Cache `mapped_to_component` field or `components.md` row links this node to a code-component. Match → consume. When the cache field `master_verified_via: "instance-id-format"` is present, recognize the Figma instance-id format `I<frame-id>;<master-id>` to resolve the master via its verified frame without requiring a separate master-cache lookup (matches mapping skill's instance-id verification convention).
 
 **Path B — fingerprint via mapping-data** (only when Path A fails):
 
