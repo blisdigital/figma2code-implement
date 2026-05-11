@@ -80,6 +80,7 @@ Deliverables in `SKILL.md`:
          - alleen tentatieve signalen → geen propose, behandel als element-frame
       5. **Multi-match handling:** bij 2+ kandidaten met vergelijkbare score → halt en toon alle kandidaten. **User kiest**, implement tie-breakt niet zelf.
       6. **Match outcomes:** user accepteert → consume + propose-write drift naar mapping (`verify-queue.md`: "Figma element-frame should be component-instance"). User weigert OR geen match → continue als pure element via B4.2 + B5.
+      7. **Path B is mapping-data-driven, geen mapping-upgrade-afhankelijkheid.** Path B leest per-component specs zoals ze vandaag bestaan — werkt of mapping skill loose of strikte element-vs-component classification toepast. Een strakkere mapping-side discipline (expliciete classification methodology + verification step) reduceert hoe vaak Path B vuurt, maar is een **suggestie voor de mapping repo**, geen gekoppelde dependency. Hoort in mapping's eigen roadmap, niet in de coordination PR.
     - **Path C — geen match in A of B.** Halt + route naar mapping: *"Geen component-mapping en geen fingerprint-match voor deze node. Run `/figma-to-code-mapping map X` eerst."*
   - **B4.2 token-lookup** — voor alle Figma values (uitvoerend zodra B4.1 een match of expliciete element-classificatie heeft)
   - **B4.3 styling-stack adherence**
