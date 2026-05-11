@@ -10,26 +10,11 @@
 
 Items tracked here have a proposal where one exists; if you decide differently, update the proposal field and bump the relevant section of SKILL.md in the same PR.
 
----
-
-## 🔴 1. Confirmation gate before B7 emit — atom direct vs organism+ gated?
-
-**Status:** open, no current proposal.
-
-**Context:** Mapping rule #7 (*"Ask for confirmation before code or doc changes"*) is a strong norm in the sister skill. Implement, by definition, writes code at B7. A blanket halt-and-ask before every emit creates friction for trivial atom-level emits. No gate at all risks writing large amounts of code without review.
-
-**Three options:**
-- **A — Always confirm.** Safest, most friction. Every B7 → user OK before commit.
-- **B — Gated by atomic-level.** Atoms/molecules direct emit (B6 is the safety net). Organisms+ require user OK. Reasonable balance.
-- **C — Never confirm.** Trust B6's 8-point check fully. Maximum velocity, no safety brake.
-
-**Preliminary leaning:** option B. Matches mapping's "ask before code changes" spirit while not blocking on trivial cases.
-
-**Impact if changed:** B7 description, new rule #13 (if a confirmation rule is added explicitly).
+**Current state (v0.3):** all rule-text-determining items resolved. Remaining items are implementation-detail (🟡, 3 items) and nice-to-have mapping-repo suggestions (🟢, 2 items). None are ship-blockers for v1.0; they can resolve during Fase 5 dogfood or later iteration.
 
 ---
 
-## 🟡 2. Cache hash format — what exactly is hashed?
+## 🟡 1. Cache hash format — what exactly is hashed?
 
 **Status:** open.
 
@@ -46,7 +31,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟡 3. Hard halt vs `--force` flag
+## 🟡 2. Hard halt vs `--force` flag
 
 **Status:** open.
 
@@ -62,7 +47,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟡 4. B5 pattern-search confidence floor
+## 🟡 3. B5 pattern-search confidence floor
 
 **Status:** open, proposal in SKILL.md B5.
 
@@ -76,7 +61,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟢 5. Mapping-side classification methodology — suggestion for mapping repo
+## 🟢 4. Mapping-side classification methodology — suggestion for mapping repo
 
 **Status:** explicit suggestion, **not coupled to implement v0.1 ship.**
 
@@ -88,7 +73,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟢 6. Per-spec component fingerprint section
+## 🟢 5. Per-spec component fingerprint section
 
 **Status:** suggestion for mapping repo.
 
@@ -112,6 +97,7 @@ For traceability, decisions that were made during design but later closed:
 - **Verify-queue scope** — resolved (v0.3): blocks emit only when the verify-queue item is linked to the **same per-component spec** as the emit-scope. Smallest meaningful blocking scope; broader definitions deadlock the user on every implement run. SKILL.md rule #7 updated.
 - **Rule #2 trigger box exact list** — resolved (v0.3): keep current list (*"Build this Figma frame"*, *"Implement this design"*, *"Generate code for [URL]"*, *"Make this component"*) plus add developer-style Figma-MCP invocations *"Use Figma MCP"* and *"Implement this Figma design"* — so devs reach the skill from their normal Figma-MCP workflow. SKILL.md rule #2 trigger box updated.
 - **Stand-alone (no-mapping) variant** — resolved: not built. Projects without mapping use [skills.sh `figma-implement-design`](https://skills.sh/figma/mcp-server-guide/figma-implement-design) or bare Figma MCP. README scope-clause clarifies this. Replicating bare-MCP would dilute the strict-mode value proposition.
+- **Confirmation gate before B7 emit** — resolved (v0.3): no skill-level confirmation gate. Host environment provides the safety nets — Claude Code's permission-system asks per file-write, and the project's PR-review process catches issues before merge to main. A skill-level halt-and-ask would duplicate those gates without adding safety. SKILL.md B7 makes this explicit.
 
 ---
 

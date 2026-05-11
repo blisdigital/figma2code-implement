@@ -286,7 +286,7 @@ Walk through every check before producing code. Halt on any failure.
 
 ### B7. Emit + traceability
 
-Produce code.
+Produce code. No skill-level confirmation gate before emit — the host environment provides the safety nets: Claude Code's permission-system asks per file-write, and the project's PR-review process catches issues before merge to main. A skill-level halt-and-ask would duplicate those gates without adding safety.
 
 **File-path determination:**
 - **Edit existing component file** when B4.1 Path A consumed an existing code-component → the file-path comes from `components.md` (Uses column or co-located spec location). Implement edits, does not create.
