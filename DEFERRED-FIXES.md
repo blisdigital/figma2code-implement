@@ -38,7 +38,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 **Open:** is this list complete? Does it overlap with skills.sh `figma-implement-design` triggers (which fire on "implement design", "generate code", "implement component")? Need to confirm that overlap doesn't cause dual-triggering when both skills are installed.
 
-**Coupled with:** mapping coordination edit #2 in [mapping#6](https://github.com/blisdigital/figma2code-mapping/pull/6). Both skills must use the same trigger list to avoid divergence.
+**Coupled with:** mapping skill rule #2 trigger box. Both skills must use the same trigger list to avoid divergence — verify against current mapping `SKILL.md` rule #2 when resolving. (Earlier tracked in mapping#6, now closed; mapping v3.3+ may already align.)
 
 **Impact if changed:** SKILL.md rule #2 box, frontmatter description, mapping skill rule #2 box.
 
@@ -72,7 +72,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 - Combined hash (spec file + linked component file + dependencies)
 - Tree hash (entire component folder)
 
-**Coupled with:** mapping coordination edit #4 in [mapping#6](https://github.com/blisdigital/figma2code-mapping/pull/6) — cache schema formalisation should define this precisely.
+**Coupled with:** mapping skill cache schema. Cache-format formalisation should define this precisely — check current mapping `SKILL.md § Cache + hash check` for state. (Earlier tracked in mapping#6, now closed; mapping v3.3+ may already cover this.)
 
 **Impact if changed:** B3.0 logic + mapping cache write logic. Coordinated change.
 

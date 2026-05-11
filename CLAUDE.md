@@ -86,4 +86,4 @@ No longer. No vaguer. On overflow: split into two entries or the lesson is not s
 
 - The symlink is created by the end user (see `README.md`); for debug sessions you can run `ls -la ~/.claude/skills/figma-to-code-implement` to verify the symlink exists.
 - Test changes: `git pull` in your own `~/Github/figma2code-implement/`, then trigger Claude in a test project with `/figma-to-code-implement check <Figma-link>` on a node that has mapping.
-- Sister skill: [`figma-to-code-mapping`](https://github.com/blisdigital/figma2code-mapping). Coordination doc: [mapping#6](https://github.com/blisdigital/figma2code-mapping/pull/6).
+- Sister skill: [`figma-to-code-mapping`](https://github.com/blisdigital/figma2code-mapping). For cross-skill coordination work, open a fresh PR or issue in the mapping repo — earlier coordination doc (mapping#6) was closed; mapping v3.3+ may already cover what was tracked there.

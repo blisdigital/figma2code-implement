@@ -149,7 +149,7 @@ User: build this Figma frame
       → no mapping → halt + route to /figma-to-code-mapping map X
 ```
 
-Routing is bi-directional: implement halts and routes to mapping on gaps; mapping is being updated (see [mapping#6](https://github.com/blisdigital/figma2code-mapping/pull/6)) to route implement-intent sentences to this skill.
+Routing is bi-directional: implement halts and routes to mapping on gaps; mapping skill handles routing of implement-intent sentences as it evolves — check the current [mapping `SKILL.md`](https://github.com/blisdigital/figma2code-mapping/blob/main/SKILL.md) for state.
 
 **Use both together.** Map first, then implement. Mapping documents the relationship; implementation enforces it at code-emit time.
 
