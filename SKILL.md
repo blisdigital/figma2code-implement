@@ -25,6 +25,8 @@ Emit-time enforcement skill that translates Figma designs into working code by c
 
 **Goal: emit code that consumes existing codebase, not duplicates it.** Mapping has already documented which Figma elements map to which code paths. This skill enforces that contract at the moment code is produced.
 
+**Code is source of truth, Figma is intent** — this skill enforces that direction at code-emit time. Mismatches between Figma and code do not pull code toward Figma (no minimal-adjust pixel-fixes, rule #11); they surface as drift for a designer-or-dev decision via mapping's drift loop. Drift is a measurable deviation, not a neutral observation.
+
 Four mechanisms together deliver production-quality emit:
 
 1. **Mapping consumption** — read `tokens.md`, `components.md`, per-component specs, `drifts.md`, `verify-queue.md` before any emit
