@@ -206,6 +206,8 @@ See § Source mechanism above. Cache hash match → consume cache. Mismatch → 
 
 For each Figma element in the frame, in atomic-order (Page > Template > Organism > Molecule > Atom; stop on the highest mapped level):
 
+**Consumable-bites principle.** Atomic-ordering naturally keeps emit scope small — stopping at the highest mapped level avoids exploding into many child emits. When a Figma scope still maps to multiple un-grouped organisms or molecules (no parent Page/Template exists in code), emit one organism/molecule per cycle rather than attempting the full scope in one pass. Smaller batches produce more reliable B6 validation and easier review.
+
 #### B4.1 Component-lookup — three paths
 
 **Path A — direct mapping match.** Cache `mapped_to_component` field or `components.md` row links this node to a code-component. Match → consume. When the cache field `master_verified_via: "instance-id-format"` is present, recognize the Figma instance-id format `I<frame-id>;<master-id>` to resolve the master via its verified frame without requiring a separate master-cache lookup (matches mapping skill's instance-id verification convention).
@@ -283,13 +285,21 @@ Walk through every check before producing code. Halt on any failure.
 
 ### B7. Emit + traceability
 
-Produce code. In the commit message and PR body, document which mapping sources were consumed:
+Produce code.
+
+**File-path determination:**
+- **Edit existing component file** when B4.1 Path A consumed an existing code-component → the file-path comes from `components.md` (Uses column or co-located spec location). Implement edits, does not create.
+- **Edit existing page/route file** when B5 pattern-search adopted a similar-context file → emit alongside, mirroring the framework's conventions found by the heuristic.
+- **New file required** (no existing component, no similar-context pattern) → halt and ask user for the target path. Implement does not invent file locations or directory structures.
+
+**Commit / PR traceability blok:**
 
 ```
 Implements <Figma-nodeId> per:
 - docs/components/<spec>.md
 - docs/tokens.md
 - figma-context/<node-id>.json (hash: <hash>)
+Emitted to: <file-path>
 ```
 
 Allows traceability back to mapping ground-truth at review time.
