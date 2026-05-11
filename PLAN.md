@@ -105,6 +105,8 @@ Deliverables in `SKILL.md`:
 
 **Doel:** de output van een implement-run reproduceerbaar maken, zodat traceability terug naar mapping intact blijft.
 
+**Templates zijn skill-intern, niet project-side.** Anders dan mapping skill (waar templates worden gekopieerd naar project repo via `setup`), zijn onze templates workflow-formats die Claude leest bij elke run en dynamisch invult. Output landt in **commit message / PR body / chat**, niet als persistent bestand in project repo. Eén uitzondering: `claude-md-snippet.md` wordt door Claude getoond en door user éénmalig gepaste in project `CLAUDE.md`. Geen `/figma-to-code-implement setup` command nodig.
+
 Deliverables in `templates/`:
 - `emit-trace.md` — template voor het commit/PR-blok (welke mapping-bronnen, welke nodeIds, welke drifts gesurfaced)
 - `pre-emit-checklist.md` — de 8-point check als invulbaar lijstje voor `check`-mode
@@ -157,8 +159,8 @@ Vier files in deze skill-repo hebben elk een eigen lezer en eigen moment van lad
 | `SKILL.md` | Claude in een project waar de skill triggert | Bij elke triggermatch | Method, hard rules, B1-B8 procedure, slash commands, "what to read when"-tabel, skill boundary, references |
 | `README.md` | Mens op GitHub | Niet door Claude | Installatie, symlink-stappen, usage-voorbeeld, prerequisites, "what this is not" |
 | `CLAUDE.md` | Claude wanneer hij in **deze repo** werkt | Alleen tijdens skill-onderhoud | Edit-rules voor de skill zelf, branch/PR conventie, design-rationale (incl. skills.sh-challenge), version-bump policy, skill-vs-implementation lijn |
-| `templates/claude-md-snippet.md` | Eindgebruiker (kopieert naar projectroot) | Bij `/figma-to-code-implement init-claude-md` | Korte uitleg + paste-block voor project CLAUDE.md zodat skill auto-triggert |
-| `templates/<rest>` | Skill, gekopieerd naar project bij `setup` | Bij `setup`-command | Lege uitvoer-templates (`emit-trace.md`, `pre-emit-checklist.md`, etc.) |
+| `templates/claude-md-snippet.md` | Claude toont aan user, die paste naar projectroot CLAUDE.md | Bij `/figma-to-code-implement init-claude-md` | Paste-block, additive op mapping skill snippet |
+| `templates/<rest>` | Claude leest bij elke run, vult dynamisch in, output gaat naar commit/PR/chat | Bij elke `/figma-to-code-implement` run (geen aparte setup) | Skill-interne workflow-formats voor consistente output (emit-trace, pre/post-emit checklists, pattern-adoption-note). **Niet** gekopieerd naar project repo — implement skill heeft geen `setup` command, anders dan mapping skill. |
 | `DEFERRED-FIXES.md` | Skill-maintainer | Bij maintenance-sessies | Open beslissingen, TBD-items, ideeën die nog niet rijp zijn |
 
 ### SKILL.md table of contents (concept, naar voorbeeld van mapping skill)

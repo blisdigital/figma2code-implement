@@ -131,7 +131,7 @@ figma2code-implement/
 ├── README.md                           ← this file (humans)
 ├── CLAUDE.md                           ← edit conventions for Claude in this repo
 ├── PLAN.md                             ← design history with open decisions
-└── templates/                          ← (planned for Fase 3) emit-trace, pre/post-emit checklists, claude-md-snippet
+└── templates/                          ← (planned for Fase 3) skill-internal workflow formats — emit-trace, pre/post-emit checklists, pattern-adoption-note, claude-md-snippet. Read by Claude per run, filled dynamically, output to commit/PR/chat. Not copied to project repo.
 ```
 
 ## Sister skill — figma-to-code-mapping
