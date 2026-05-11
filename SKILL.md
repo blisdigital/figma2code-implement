@@ -88,13 +88,6 @@ When this skill applies, when it doesn't, and where to route otherwise.
 
 **Mapping-prerequisite is a feature, not a limitation.** Projects without mapping discipline are served by bare Figma MCP or skills.sh — this skill is for projects that have invested in mapping. We do not pretend to be an alternative to bare MCP; we are the strict-mode pipeline on top of mapping.
 
-**What this is not:**
-- **Not a mapping tool.** Consumes mapping; does not produce or update it. Mapping changes happen in `figma-to-code-mapping`.
-- **Not a bare-MCP alternative.** Projects without mapping should use bare Figma MCP or skills.sh — this skill is the strict-mode pipeline *on top of* mapping.
-- **Not a minimal-adjust pixel-fixer.** Refuses inline pixel-fixes to match Figma exactly. Mismatches surface as drift (rule #11, deviates from skills.sh stap 6).
-- **Not a writer of mapping files.** Mapping files are read-only with two narrow propose-to-user exceptions (B4.1 Path C halt routing, B4.1 Path B fingerprint-match accepted → `verify-queue.md` row).
-- **Not a code-quality enforcer.** TypeScript types, JSDoc, file-naming linting — out of scope. That is general development tooling, not Figma-discipline.
-
 ## Mapping → implement contract
 
 Implement is a **read-only consumer** of mapping output. Writes are permitted only as propose-to-user, never silent.
