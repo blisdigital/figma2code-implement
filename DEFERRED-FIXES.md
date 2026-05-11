@@ -12,39 +12,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🔴 1. Verify-queue scope — block all emits or only emits with in-scope items?
-
-**Status:** open, proposal documented in SKILL.md rule #7 as "in-scope only".
-
-**Context:** Mapping's `verify-queue.md` holds unconfirmed mappings waiting for the next live-MCP session. If many items pile up, a strict "any verify-queue item blocks any emit" rule deadlocks the user on every implement attempt.
-
-**Proposal (in current rule #7):** verify-queue items block emit *only* if they fall within the emit scope. Items outside scope are noise for this emit.
-
-**Open:** confirm the scope definition. Is "in scope" = same per-component spec? Same atomic-level branch? Same Figma frame tree? Different answers produce different blocking volumes.
-
-**Impact if changed:** rule #7 phrasing, B1 + B6 check #6.
-
----
-
-## 🔴 2. Rule #2 trigger box — exact list of implement-intent vs auto-clipboard ignores
-
-**Status:** open, proposal documented in SKILL.md rule #2 box.
-
-**Context:** Figma's *Copy Link in Dev mode* puts boilerplate text on the clipboard (*"Implement this design from Figma."*). That sentence must not trigger the skill — it's an artifact, not user intent. Meanwhile, a user typing *"implement this"* is a legitimate trigger.
-
-**Current proposal:**
-- **Do treat as trigger:** "build this Figma frame", "implement this design", "generate code for [URL]", "make this component"
-- **Do NOT treat as trigger:** pure Figma URL paste, "Implement this design from Figma." (auto-clipboard boilerplate)
-
-**Open:** is this list complete? Does it overlap with skills.sh `figma-implement-design` triggers (which fire on "implement design", "generate code", "implement component")? Need to confirm that overlap doesn't cause dual-triggering when both skills are installed.
-
-**Coupled with:** mapping skill rule #2 trigger box. Both skills must use the same trigger list to avoid divergence — verify against current mapping `SKILL.md` rule #2 when resolving. (Earlier tracked in mapping#6, now closed; mapping v3.3+ may already align.)
-
-**Impact if changed:** SKILL.md rule #2 box, frontmatter description, mapping skill rule #2 box.
-
----
-
-## 🔴 3. Confirmation gate before B7 emit — atom direct vs organism+ gated?
+## 🔴 1. Confirmation gate before B7 emit — atom direct vs organism+ gated?
 
 **Status:** open, no current proposal.
 
@@ -61,7 +29,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟡 4. Cache hash format — what exactly is hashed?
+## 🟡 2. Cache hash format — what exactly is hashed?
 
 **Status:** open.
 
@@ -78,7 +46,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟡 5. Hard halt vs `--force` flag
+## 🟡 3. Hard halt vs `--force` flag
 
 **Status:** open.
 
@@ -94,7 +62,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟡 6. B5 pattern-search confidence floor
+## 🟡 4. B5 pattern-search confidence floor
 
 **Status:** open, proposal in SKILL.md B5.
 
@@ -108,7 +76,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟢 7. Mapping-side classification methodology — suggestion for mapping repo
+## 🟢 5. Mapping-side classification methodology — suggestion for mapping repo
 
 **Status:** explicit suggestion, **not coupled to implement v0.1 ship.**
 
@@ -120,7 +88,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ---
 
-## 🟢 8. Per-spec component fingerprint section
+## 🟢 6. Per-spec component fingerprint section
 
 **Status:** suggestion for mapping repo.
 
@@ -141,6 +109,9 @@ For traceability, decisions that were made during design but later closed:
 - **Implement fingerprint detection on Figma-side tokens** — schrapt in favor of mapping-data driven matching (Path B uses per-component specs as fingerprint source, no Figma-side detection layer in implement).
 - **Implement writes to mapping `drifts.md` / `verify-queue.md`** — schrapt as default; only two narrow propose-to-user exceptions remain (B4.1 Path B accepted → `verify-queue.md`, B4.1 Path C → propose-route-to-mapping without writing).
 - **Skill name `figma-to-code-implement`** — kept (parallel naming with `figma-to-code-mapping` outweighs name-similarity with skills.sh `figma-implement-design`).
+- **Verify-queue scope** — resolved (v0.3): blocks emit only when the verify-queue item is linked to the **same per-component spec** as the emit-scope. Smallest meaningful blocking scope; broader definitions deadlock the user on every implement run. SKILL.md rule #7 updated.
+- **Rule #2 trigger box exact list** — resolved (v0.3): keep current list (*"Build this Figma frame"*, *"Implement this design"*, *"Generate code for [URL]"*, *"Make this component"*) plus add developer-style Figma-MCP invocations *"Use Figma MCP"* and *"Implement this Figma design"* — so devs reach the skill from their normal Figma-MCP workflow. SKILL.md rule #2 trigger box updated.
+- **Stand-alone (no-mapping) variant** — resolved: not built. Projects without mapping use [skills.sh `figma-implement-design`](https://skills.sh/figma/mcp-server-guide/figma-implement-design) or bare Figma MCP. README scope-clause clarifies this. Replicating bare-MCP would dilute the strict-mode value proposition.
 
 ---
 

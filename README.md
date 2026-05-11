@@ -164,7 +164,7 @@ Routing is bi-directional: implement halts and routes to mapping on gaps; mappin
 ## What this is not
 
 - **Not a mapping tool.** It consumes mapping; it does not produce or update it. Mapping changes happen in `figma-to-code-mapping`.
-- **Not a bare-MCP alternative.** Projects without mapping should use bare Figma MCP or skills.sh — this skill is the strict-mode pipeline on top of mapping.
+- **Not a bare-MCP alternative.** Projects without mapping should use bare Figma MCP or [skills.sh `figma-implement-design`](https://skills.sh/figma/mcp-server-guide/figma-implement-design) — this skill is the strict-mode pipeline *on top of* mapping. We do not maintain a stand-alone variant and have no plans to: replicating bare-MCP for cold-start projects would dilute the value proposition (drift discipline, verify-queue, traceability) that exists only because mapping invests in it.
 - **Not a minimal-adjust pixel-fixer.** This skill refuses inline pixel-fixes to match Figma exactly. Mismatches surface as drift, mapping's drift loop decides resolution. (Bewuste afwijking van skills.sh stap 6.)
 - **Not a writer of mapping files.** Mapping files are read-only with two narrow exceptions (Path C halt routing, Path B fingerprint-match propose-to-user write to `verify-queue.md`).
 
