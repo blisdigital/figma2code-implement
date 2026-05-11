@@ -27,6 +27,8 @@ Emit-time enforcement skill that translates Figma designs into working code by c
 
 **Code is source of truth, Figma is intent** — this skill enforces that direction at code-emit time. Mismatches between Figma and code do not pull code toward Figma (no minimal-adjust pixel-fixes, rule #11); they surface as drift for a designer-or-dev decision via mapping's drift loop. Drift is a measurable deviation, not a neutral observation.
 
+**Stack-agnostic.** Works with whatever styling stack the project uses — Tailwind, Emotion, styled-components, CSS modules, custom CSS, or any combination. Same for framework (React, Vue, Svelte, etc.). The skill follows mapping's documentation of those facts (`tokens.md § Project styling stack`) and never imposes its own opinion about which stack to use or how to express a token.
+
 Four mechanisms together deliver production-quality emit:
 
 1. **Mapping consumption** — read `tokens.md`, `components.md`, per-component specs, `drifts.md`, `verify-queue.md` before any emit
@@ -40,7 +42,7 @@ Twelve rules that always apply, regardless of step. On conflict between sections
 
 1. **Read mapping first.** Before any emit: read `tokens.md`, `components.md`, the per-component specs in scope, `drifts.md`, and `verify-queue.md`. No emit without this consultation.
 
-2. **Never emit raw where token exists.** If `tokens.md` lists a token-path for the value (column 3 verdict: `token-path` or `raw, token available: <path>`), emit the token. If raw is necessary (verdict: `raw, legitimate — no matching token`), hoist to a page-level CSS variable. **Never inline raw values.**
+2. **Never emit raw where token exists.** If `tokens.md` lists a token-path for the value (column 3 verdict: `token-path` or `raw, token available: <path>`), emit the token. If raw is necessary (verdict: `raw, legitimate — no matching token`), hoist via the project's styling stack to a higher-scope token-like construct (CSS variable, theme value, Tailwind config token, etc. — whatever the stack uses, per mapping's documentation). **Never inline raw values.**
 
    > **Do NOT treat as an implement trigger:**
    > - Pure Figma URL paste with no explicit emit instruction (it may be a mapping intent or just sharing).
@@ -236,7 +238,7 @@ For each Figma value: look up in `tokens.md`. Verdict-driven (rule #2):
 
 - Verdict `token-path` → emit token
 - Verdict `raw, token available: <path>` → emit token (mapping says raw was used but a token exists)
-- Verdict `raw, legitimate — no matching token` → hoist to page-level CSS variable
+- Verdict `raw, legitimate — no matching token` → hoist via the project's styling stack to a higher-scope token-like construct (per mapping's `tokens.md § Project styling stack`)
 
 No inline raw values.
 
@@ -257,12 +259,12 @@ Pull `aria-label`, `alt`, `placeholder`, `title` from the per-component spec's L
 When B4.1 Path A and B both fail and the Figma node is not a component but a layout composition (ad-hoc page region): search codebase for similar-context files.
 
 **Heuristic order:**
-1. Same route-tree parent (e.g., for an error page, look in `app/(routes)/.../error.tsx`)
+1. Same route-tree parent in the project's framework conventions (e.g., for an error page: Next.js `app/.../error.tsx`, Nuxt `error.vue`, etc.)
 2. Same category folder (`errors/`, `detail/`, `dashboard/`)
 3. Similar filename pattern
 4. **Confidence floor:** found fewer than 2 similar-context files → halt and ask user. Do not adopt a single arbitrary file as pattern.
 
-On adoption: emit using the adopted pattern's className/utility conventions, layout primitive choices, and spacing utilities.
+On adoption: emit using the adopted pattern's structural and styling conventions — whatever the stack uses (className composition, utility classes, styled-component imports, CSS-module classes, etc.).
 
 ### B6. Pre-emit validation — 8 checks
 
