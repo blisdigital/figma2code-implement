@@ -27,7 +27,7 @@ This skill is a **strict consumer** of `figma-to-code-mapping`. Edits to consump
 
 - `SKILL.md` = method + rules for *applying* the skill in a project (loaded in every project where the skill triggers)
 - `CLAUDE.md` = edit rules for *this repo* (loaded only when Claude works in this repo)
-- `templates/` = skill-internal workflow formats (planned for Fase 3 — emit-trace, pre/post-emit checklists, pattern-adoption-note, claude-md-snippet). Claude reads them per run and fills dynamically; output lands in commit/PR/chat. **Not** copied to project repo — implement skill has no `setup` command, unlike mapping skill.
+- `templates/` = skill-resident files in two subgroups (planned for Fase 3). **Ephemeral workflow-formats** (4 files: emit-trace, pre-emit-checklist, post-emit-visual-check, pattern-adoption-note) — Claude reads per run, fills dynamically, output lands in commit/PR/chat, not persisted in project. **One-time paste-block** (1 file: claude-md-snippet) — Claude shows via `init-claude-md`, user pastes once into project `CLAUDE.md` (persistent there, but as user-action, not as skill-write). **No `setup` command in either case** — unlike mapping skill which copies its templates to project on setup.
 - `README.md` = developer-facing setup guide on GitHub
 - `PLAN.md` = design history with open decisions
 

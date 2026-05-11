@@ -105,7 +105,12 @@ Deliverables in `SKILL.md`:
 
 **Doel:** de output van een implement-run reproduceerbaar maken, zodat traceability terug naar mapping intact blijft.
 
-**Templates zijn skill-intern, niet project-side.** Anders dan mapping skill (waar templates worden gekopieerd naar project repo via `setup`), zijn onze templates workflow-formats die Claude leest bij elke run en dynamisch invult. Output landt in **commit message / PR body / chat**, niet als persistent bestand in project repo. Eén uitzondering: `claude-md-snippet.md` wordt door Claude getoond en door user éénmalig gepaste in project `CLAUDE.md`. Geen `/figma-to-code-implement setup` command nodig.
+**Templates leven in skill repo, geen `setup` command kopieert ze naar project.** Anders dan mapping skill, dat per project `tokens.md` / `components.md` / specs in projectroot schrijft, hebben wij twee subgroepen:
+
+1. **Ephemeral workflow-formats (4 files)** — Claude leest bij elke run, vult dynamisch in, output landt in **commit message / PR body / chat**. Niet persistent in project repo: `emit-trace.md`, `pre-emit-checklist.md`, `post-emit-visual-check.md`, `pattern-adoption-note.md`.
+2. **One-time paste-block (1 file)** — Claude toont via `/figma-to-code-implement init-claude-md`, user paste éénmalig in project `CLAUDE.md` (committed via git, team-wide). Wel persistent in project repo, maar als user-actie, niet als skill-write: `claude-md-snippet.md` (additive op mapping skill snippet).
+
+Geen `/figma-to-code-implement setup` command.
 
 Deliverables in `templates/`:
 - `emit-trace.md` — template voor het commit/PR-blok (welke mapping-bronnen, welke nodeIds, welke drifts gesurfaced)
