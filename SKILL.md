@@ -1,6 +1,6 @@
 ---
 name: figma-to-code-implement
-version: "0.1"
+version: "0.3"
 description: >
   Translates Figma designs into working code by consuming the mapping produced by
   `figma-to-code-mapping`. Use this skill when the user says "build this Figma frame",
@@ -50,6 +50,7 @@ Twelve rules that always apply, regardless of step. On conflict between sections
    >
    > **Do treat as an implement trigger:**
    > - "Build this Figma frame", "Implement this design", "Generate code for [URL]", "Make this component".
+   > - "Use Figma MCP", "Implement this Figma design" — developer-style invocations when working with the Figma MCP server. These triggers let devs reach this skill from their normal Figma MCP workflow.
    > - Explicit sentence indicating code production from Figma.
    >
    > On ambiguity: ask.
@@ -62,7 +63,7 @@ Twelve rules that always apply, regardless of step. On conflict between sections
 
 6. **Pattern reference for non-componentized layouts.** When a region is not bound to an existing code-component (ad-hoc page composition): search the codebase for similar-context files (same route-tree parent, same category folder, similar filename) and adopt their pattern. No similar context → halt, ask user. Do not improvise a new pattern parallel to existing conventions.
 
-7. **Verify-queue blocks emit — for items in scope only.** If a needed mapping is in `verify-queue.md` and it falls within the emit scope: pause and ask user. Items outside the emit scope do not block. Don't improvise.
+7. **Verify-queue blocks emit — same per-component spec only.** If `verify-queue.md` has an item linked to the **same per-component spec** as the emit-scope: pause and ask user. Items in other specs do not block (smallest meaningful blocking scope; broader definitions deadlock the user on every implement run). Don't improvise.
 
 8. **Surface mapping-recorded drift — never silently resolve.** Read `drifts.md` and per-component spec drift notes before emit. Drifts in scope are surfaced to the user as design decisions, not silently fixed. Implement does not detect new drift — mapping does that.
 
@@ -285,7 +286,7 @@ Walk through every check before producing code. Halt on any failure.
 
 ### B7. Emit + traceability
 
-Produce code.
+Produce code. No skill-level confirmation gate before emit — the host environment provides the safety nets: Claude Code's permission-system asks per file-write, and the project's PR-review process catches issues before merge to main. A skill-level halt-and-ask would duplicate those gates without adding safety.
 
 **File-path determination:**
 - **Edit existing component file** when B4.1 Path A consumed an existing code-component → the file-path comes from `components.md` (Uses column or co-located spec location). Implement edits, does not create.
@@ -336,3 +337,10 @@ No silent resolution at any point. No minimal-adjust pixel-fix (rule #11).
 - [PLAN.md](PLAN.md) — full design history with open decisions
 - [README.md](README.md) — installation, usage, prerequisites
 - [CLAUDE.md](CLAUDE.md) — edit rules for this repo + skills.sh design rationale
+- [DEFERRED-FIXES.md](DEFERRED-FIXES.md) — open decisions tracked across rule-text / implementation-detail / nice-to-have tiers
+- [LESSONS.md](LESSONS.md) — append-only history of corrections and confirmations
+- [templates/emit-trace.md](templates/emit-trace.md) — B7 commit/PR traceability block format
+- [templates/pre-emit-checklist.md](templates/pre-emit-checklist.md) — B6 8-point check format
+- [templates/post-emit-visual-check.md](templates/post-emit-visual-check.md) — B8 7-point check format
+- [templates/pattern-adoption-note.md](templates/pattern-adoption-note.md) — B5 outcome / halt format
+- [templates/claude-md-snippet.md](templates/claude-md-snippet.md) — paste-block shown by `init-claude-md` command
