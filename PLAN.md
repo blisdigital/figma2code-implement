@@ -105,14 +105,24 @@ Deliverables in `SKILL.md`:
 
 **Doel:** de output van een implement-run reproduceerbaar maken, zodat traceability terug naar mapping intact blijft.
 
+**Templates leven in skill repo, geen `setup` command kopieert ze naar project.** Anders dan mapping skill, dat per project `tokens.md` / `components.md` / specs in projectroot schrijft, hebben wij twee subgroepen:
+
+1. **Ephemeral workflow-formats (4 files)** — Claude leest bij elke run, vult dynamisch in, output landt in **commit message / PR body / chat**. Niet persistent in project repo: `emit-trace.md`, `pre-emit-checklist.md`, `post-emit-visual-check.md`, `pattern-adoption-note.md`.
+2. **One-time paste-block (1 file)** — Claude toont via `/figma-to-code-implement init-claude-md`, user paste éénmalig in project `CLAUDE.md` (committed via git, team-wide). Wel persistent in project repo, maar als user-actie, niet als skill-write: `claude-md-snippet.md` (additive op mapping skill snippet).
+
+Geen `/figma-to-code-implement setup` command.
+
 Deliverables in `templates/`:
 - `emit-trace.md` — template voor het commit/PR-blok (welke mapping-bronnen, welke nodeIds, welke drifts gesurfaced)
-- `component-missing-drift.md` — wat te schrijven naar `drifts.md` van de mapping repo wanneer B4.1 halt
-- `pattern-adoption-note.md` — vorm van het "ik heb pattern X uit file Y geadopteerd"-notitie voor B5
 - `pre-emit-checklist.md` — de 8-point check als invulbaar lijstje voor `check`-mode
 - `post-emit-visual-check.md` — checklist voor B8 (layout, typo, kleur, states, responsive, assets, a11y)
+- `claude-md-snippet.md` — paste-block voor project CLAUDE.md (additive op mapping skill snippet)
+- `pattern-adoption-note.md` — vorm van het "ik heb pattern X uit file Y geadopteerd"-notitie voor B5
 
-**Acceptatie:** elke halt-conditie (component-missing, verify-queue blocker, geen pattern gevonden) heeft een gestandaardiseerd output-formaat.
+**Niet meer in lijst (vroeger gepland, nu geschrapt):**
+- ~~`component-missing-drift.md`~~ — implement schrijft nooit zelf naar mapping's `drifts.md`. Bij Path C halt route je naar mapping skill; die schrijft de drift-row in zijn eigen `drifts.md` template-format. Onze versie zou duplicaat zijn.
+
+**Acceptatie:** elke halt-conditie (verify-queue blocker, geen pattern gevonden) heeft een gestandaardiseerd output-formaat; B7 emit + traceability heeft een herhaalbaar commit-format; B8 visual-check is reproduceerbaar.
 
 ---
 
@@ -154,8 +164,8 @@ Vier files in deze skill-repo hebben elk een eigen lezer en eigen moment van lad
 | `SKILL.md` | Claude in een project waar de skill triggert | Bij elke triggermatch | Method, hard rules, B1-B8 procedure, slash commands, "what to read when"-tabel, skill boundary, references |
 | `README.md` | Mens op GitHub | Niet door Claude | Installatie, symlink-stappen, usage-voorbeeld, prerequisites, "what this is not" |
 | `CLAUDE.md` | Claude wanneer hij in **deze repo** werkt | Alleen tijdens skill-onderhoud | Edit-rules voor de skill zelf, branch/PR conventie, design-rationale (incl. skills.sh-challenge), version-bump policy, skill-vs-implementation lijn |
-| `templates/claude-md-snippet.md` | Eindgebruiker (kopieert naar projectroot) | Bij `/figma-to-code-implement init-claude-md` | Korte uitleg + paste-block voor project CLAUDE.md zodat skill auto-triggert |
-| `templates/<rest>` | Skill, gekopieerd naar project bij `setup` | Bij `setup`-command | Lege uitvoer-templates (`emit-trace.md`, `pre-emit-checklist.md`, etc.) |
+| `templates/claude-md-snippet.md` | Claude toont aan user, die paste naar projectroot CLAUDE.md | Bij `/figma-to-code-implement init-claude-md` | Paste-block, additive op mapping skill snippet |
+| `templates/<rest>` | Claude leest bij elke run, vult dynamisch in, output gaat naar commit/PR/chat | Bij elke `/figma-to-code-implement` run (geen aparte setup) | Skill-interne workflow-formats voor consistente output (emit-trace, pre/post-emit checklists, pattern-adoption-note). **Niet** gekopieerd naar project repo — implement skill heeft geen `setup` command, anders dan mapping skill. |
 | `DEFERRED-FIXES.md` | Skill-maintainer | Bij maintenance-sessies | Open beslissingen, TBD-items, ideeën die nog niet rijp zijn |
 
 ### SKILL.md table of contents (concept, naar voorbeeld van mapping skill)
