@@ -43,7 +43,7 @@ Deliverables in `SKILL.md`:
 2. Never emit raw where token exists; hoist to page-variable when raw is necessary
 3. Single styling API only (per mapping's "Project styling stack")
 4. Translate auto-layout via conventions table — no fixed pixels where Figma is fill/hug
-5. **Consume existing components — never emit a new version. Read mapping carefully first.** Voor elke Figma node in scope: kijk in `components.md` en cache (`mapped_to_component`) of mapping de node aan een code-component heeft gelinkt. Match → consume. Geen mapping → halt + route naar mapping skill. **Implement classificeert niet zelf** of een Figma-frame een instance of element is — die beslissing zit in mapping-output.
+5. **Consume existing components — never emit a new version. Read mapping carefully first.** Voor elke Figma node in scope: zoek via B4.1's drie paden (A: direct mapping match → B: fingerprint via mapping-data → C: halt + route). **Implement detecteert niet via eigen Figma-analysis; hij vergelijkt tegen mapping-gedocumenteerde stempel** (per-component specs + components.md). Geen code-file scans. Bij multi-match: user kiest, implement tie-breakt niet zelf.
 6. Pattern reference for non-componentized layouts (search before invent)
 7. Verify-queue blocks emit *for items in scope* (not all)
 8. Surface mapping-recorded drift — never silently resolve. *(Implement consumes `drifts.md`; it does not run the drift-test. Mapping detects; implement surfaces.)*
@@ -61,11 +61,27 @@ Deliverables in `SKILL.md`:
   - B3.2 hash mismatch → live MCP fallback chain: `get_design_context` + `get_screenshot` → payload reduction (`excludeScreenshot: true`, `forceCode: true`) → `get_metadata` + per-child `get_design_context`. Read-only — schrijft niet terug naar cache; waarschuwt user dat mapping refresh nodig is.
   - B3.3 geen cache → halt, route naar `/figma-to-code-mapping map X`
 - B4 per-element resolution:
-  - **B4.1 component-lookup — atomic-ordered** (Page > Template > Organism > Molecule > Atom). Strikt mapping-driven: kijk in `components.md` en de cache (`mapped_to_component` field) of mapping deze node aan een code-component heeft gelinkt.
-    - Match → consume het code-component
-    - Geen match → **halt + route naar mapping**: *"Deze Figma node heeft geen component-mapping. Run `/figma-to-code-mapping map X` eerst om te bepalen of dit een gemiste component-link is of een legitieme element-frame."*
-    - **Implement detecteert niet zelf** of een element-frame eigenlijk een component had moeten zijn. Dat is mapping-werk.
-  - **B4.2 token-lookup** — voor alle Figma values (uitvoerend zodra B4.1 een match of expliciete element-classificatie heeft uit mapping)
+  - **B4.1 component-lookup — atomic-ordered** (Page > Template > Organism > Molecule > Atom). Drie paden in volgorde:
+    - **Path A — direct mapping match.** Cache (`mapped_to_component`) of `components.md` linkt deze node aan een code-component. Match → consume.
+    - **Path B — fingerprint-match via mapping-data** (alleen wanneer Path A geen match levert):
+      1. **Bron-discipline:** uitsluitend `components.md` + per-component specs scannen. **Geen rechtstreekse code-file scans.** Component-stempel is volledig in mapping-data.
+      2. **Atomic-level filter:** bepaal Figma frame-niveau op basis van structuur (klein container met 1-3 children = Atom; samengestelde structuur = Molecule). Scan alleen specs op zelfde of één-niveau-lager atomic-level.
+      3. **Match-signalen** (in volgorde van betrouwbaarheid):
+
+         | Signaal | Hoe | Sterkte |
+         |---|---|---|
+         | Naam-hint | Figma frame-naam matched/contains spec-naam ("Submit Button" → button.md) | Sterk |
+         | Token-cluster overlap | Tokens in Figma frame ⊇ tokens gedocumenteerd in spec's mapping-tabel | Sterk |
+         | Variant-axis match | Figma children/structure mapt op variants gedocumenteerd in spec (primary fill → variant=primary) | Tentatief |
+
+      4. **Confidence-thresholds:**
+         - ≥2 sterke signalen → propose to user
+         - 1 sterk signaal → tentative suggestion
+         - alleen tentatieve signalen → geen propose, behandel als element-frame
+      5. **Multi-match handling:** bij 2+ kandidaten met vergelijkbare score → halt en toon alle kandidaten. **User kiest**, implement tie-breakt niet zelf.
+      6. **Match outcomes:** user accepteert → consume + propose-write drift naar mapping (`verify-queue.md`: "Figma element-frame should be component-instance"). User weigert OR geen match → continue als pure element via B4.2 + B5.
+    - **Path C — geen match in A of B.** Halt + route naar mapping: *"Geen component-mapping en geen fingerprint-match voor deze node. Run `/figma-to-code-mapping map X` eerst."*
+  - **B4.2 token-lookup** — voor alle Figma values (uitvoerend zodra B4.1 een match of expliciete element-classificatie heeft)
   - **B4.3 styling-stack adherence**
   - **B4.4 auto-layout translation**
   - **B4.5 literal strings**
@@ -251,8 +267,9 @@ Implement skill is **read-only consument** van mapping-output. Geen schrijven na
 | `figma-context/<node-id>.json` § hash | B3 — staleness check before MCP refresh | read-only voor cache; MCP refresh schrijft, dat is mapping-werk |
 | `figma-context/<node-id>.json` § `master_verified_via: "instance-id-format"` | B4.1 — instance-id `I<frame>;<master>` herkenning | read-only |
 
-**Uitzondering — wanneer implement WEL schrijft naar mapping:**
-- B4.1 vindt geen mapping voor een Figma node → propose-to-user om route naar mapping te volgen. Implement schrijft niet zelf in `drifts.md` of `verify-queue.md`; mapping-skill doet dat tijdens haar eigen run. Implement halt simpelweg met heldere routering. Volgt mapping-skill rule #7.
+**Uitzondering — wanneer implement WEL (propose-to-user) schrijft naar mapping:**
+1. B4.1 Path C halt → propose-to-user om route naar mapping te volgen. Implement schrijft niets, mapping-skill vult zijn eigen files tijdens een eigen run.
+2. B4.1 Path B fingerprint-match geaccepteerd → propose-to-user om drift-row naar mapping's `verify-queue.md` te schrijven (*"Figma element-frame should be component-instance — matched on [signalen]"*). Schrijft alleen na user-bevestiging. Volgt mapping rule #7.
 
 ---
 
