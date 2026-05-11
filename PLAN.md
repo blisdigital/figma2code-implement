@@ -145,7 +145,7 @@ Deliverables:
 
 ### Fase 5 — Validatie op echt project (1-2 sessies)
 
-**Doel:** dogfood op WorQX of Pelle's project.
+**Doel:** dogfood op een echt project met bestaande mapping (b.v. WorQX of een ander team-project).
 
 - Draai `check` mode op een Figma frame waarvoor mapping al bestaat → verifieer dat de 8-point check juiste blockers vindt
 - Draai full emit op één klein, geïsoleerd component → vergelijk output met handmatig gemaakte versie → meet hoeveel raw values, dubbele componenten, en parallelle styling-API's de skill nu daadwerkelijk weigert

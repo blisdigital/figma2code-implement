@@ -87,7 +87,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 ## 🟢 6. Mapping-side fluidity-intent for page-level frames
 
-**Status:** suggestion for mapping repo. Surfaced by Pelle's pre-implement-skill test (see [LESSONS.md](LESSONS.md) entry 2026-05-08 correction).
+**Status:** suggestion for mapping repo. Surfaced by pre-implement-skill internal testing (see [LESSONS.md](LESSONS.md) entry 2026-05-08 correction).
 
 **Context:** A Figma frame may be designed at 1440×900 but in code should fill the viewport (100vw / 100vh) — e.g. 404 pages, error layouts, hero sections. Implement rule #4 translates Figma `fill/hug/gap` correctly when documented, but page-level "fill viewport" intent is currently not a documented concept in mapping artifacts. Without a marker, implement defaults to literal Figma pixel dimensions and the emit only fills ~40% of viewport.
 
@@ -95,7 +95,7 @@ Items tracked here have a proposal where one exists; if you decide differently, 
 
 **Where it lives:** mapping repo. Implement cannot solve this alone — requires intent data that only the designer/dev pair knows.
 
-**Coupled with:** mapping repo upgrade. Not blocking for implement, but the responsiveness gap that Pelle reported remains until mapping documents intent.
+**Coupled with:** mapping repo upgrade. Not blocking for implement, but the responsiveness gap reported in pre-skill testing remains until mapping documents intent.
 
 ---
 
