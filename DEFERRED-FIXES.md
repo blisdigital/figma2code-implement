@@ -115,6 +115,7 @@ For traceability, decisions that were made during design but later closed:
 - **Audit I1: Differential emit op bestaande files** — resolved (v0.4): B7 § File-path determination herzien naar Read-before-write. Bestaande file: prefer extend > replace. Twijfel → halt per regel-range. Voorkomt page-overschrijving regression uit pre-skill testing.
 - **Audit I2: Stack-hardcoding refuse-on-mismatch** — resolved (v0.4): rule #3 verhard naar binary halt-on-mismatch. Implement leest `tokens.md § Project styling stack` bij start B4.3, halt direct op tweede styling-API. Voorkomt dual-styling regression uit pre-skill testing.
 - **Audit I3: Post-emit screenshot-diff actief** — resolved (v0.4): B8 herzien naar vijf actieve sub-stappen (dev server start, screenshot capture, diff tegen Figma, 7-point check op diff, in-session prompt bij critical mismatch met 3 opties). Procedure-update, geen rule-text bloat.
+- **Cross-skill C1: Drift loop closing (implement → propose-to-mapping)** — resolved (v0.5): rule #8 uitgebreid met drift-summary in chat na emit + decision-prompt per drift. Rule #10 uitzondering: implement schrijft eigen `drifts-mapping.md` (parallel aan mapping's `drifts.md`). § Write contract uitgebreid. B8.5 + nieuwe B8.6 drift-summary step. Onafhankelijk van mapping-coordination — implement self-sufficient.
 
 ---
 

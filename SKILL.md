@@ -1,6 +1,6 @@
 ---
 name: figma-to-code-implement
-version: "0.4"
+version: "0.5"
 description: >
   Translates Figma designs into working code by consuming the mapping produced by
   `figma-to-code-mapping`. Use this skill when the user says "build this Figma frame",
@@ -65,11 +65,11 @@ Twelve rules that always apply, regardless of step. On conflict between sections
 
 7. **Verify-queue blocks emit — same per-component spec only.** If `verify-queue.md` has an item linked to the **same per-component spec** as the emit-scope: pause and ask user. Items in other specs do not block (smallest meaningful blocking scope; broader definitions deadlock the user on every implement run). Don't improvise.
 
-8. **Surface mapping-recorded drift — never silently resolve.** Read `drifts.md` and per-component spec drift notes before emit. Drifts in scope are surfaced to the user as design decisions, not silently fixed. Implement does not detect new drift — mapping does that.
+8. **Surface drift — and close the decision loop.** Read `drifts.md` (mapping-owned) and per-component spec drift notes before emit. **After emit-completion, print a drift-summary in chat** with decision-prompt per drift (Rollback / Accept / Update code / Inline-fix-override). User reageert per drift of in batch. Implement writes status updates to **`drifts-mapping.md`** (implement-owned, parallel to mapping's `drifts.md`). Drift wordt beslispunt, niet archief.
 
 9. **Asset discipline.** Existing project assets first, then MCP-localhost URLs, never new icon packages. No `npm install lucide-react`, no `@mui/icons-material` import. No placeholders or TODO comments — when MCP returns an asset URL, use it directly or download once to the project's convention location.
 
-10. **No write outside emit scope.** This skill only emits component/page/route code in the project's source tree. No test files, no docs, no config changes — unless the user explicitly asks. Mapping files (`tokens.md`, `components.md`, `drifts.md`, `verify-queue.md`) are read-only; only the listed exceptions in § Mapping → implement contract permit a propose-to-user write.
+10. **No write outside emit scope.** This skill only emits component/page/route code in the project's source tree. No test files, no docs, no config changes — unless the user explicitly asks. Mapping files (`tokens.md`, `components.md`, `drifts.md`, `verify-queue.md`) are read-only; **exception: implement writes its own `drifts-mapping.md`** (per rule #8, after user-decision per drift). Other propose-to-user writes per § Mapping → implement contract.
 
 11. **No minimal-adjust escape.** Mismatches between Figma and code surface as drift (rule #8), never as inline pixel-fixes. *(Deviates from skills.sh stap 6 which permits minimal-adjust to match visuals. We hold the drift-detection line.)*
 
@@ -114,10 +114,20 @@ Implement is a **read-only consumer** of mapping output. Writes are permitted on
 | `figma-context/<node-id>.json` § `spec_synced_with_files_hash` | Staleness check | B3.0 |
 | `figma-context/<node-id>.json` § `master_verified_via` | Instance-id format recognition | B4.1 |
 
-### Write (propose-to-user only)
+### Write
+
+**Mapping-owned files (`tokens.md`, `components.md`, `drifts.md`, `verify-queue.md`, per-component specs):** read-only. Two propose-to-user exceptions:
 
 1. **B4.1 Path C halt** → propose-to-user to run mapping skill. Implement writes nothing; mapping fills its own files during its own run.
 2. **B4.1 Path B fingerprint-match accepted** → propose to write a drift-row in mapping's `verify-queue.md`: *"Figma element-frame should be component-instance — matched on [signals]"*. Writes only after user confirmation. Follows mapping rule #7.
+
+**Implement-owned file: `drifts-mapping.md`** (per rule #8 + rule #10 exception). Implement writes here directly — no propose-to-user gate, want elke schrijving gebeurt **na** een user-decision in chat (revert/accept/update/override). Schema (parallel aan mapping's `drifts.md` format):
+
+```
+[YYYY-MM-DD] [Severity][Owner] <Origin: B8 / mid-emit / etc.> — <description>. Decision: <revert | accept | update-code | inline-fix-override>. Status: <ACCEPTED | IGNORED | SCHEDULED | RESOLVED>.
+```
+
+Mapping reads `drifts-mapping.md` during its own runs (mapping-side coordination, niet implement-zijde write-target).
 
 ## Slash commands
 
@@ -325,12 +335,29 @@ Run actively in the same Claude Code session as B7. Five sub-steps:
   | 6 | Assets render correctly |
   | 7 | Accessibility — aria-labels, alt text, semantic structure |
 
-- **B8.5 In-session prompt on critical mismatch.** If ≥1 ✗ critical delta: do not let the emit pass without user-decision. Prompt:
+- **B8.5 In-session prompt on critical mismatch.** If ≥1 ✗ critical delta: do not let the emit pass without user-decision. Prompt (per drift of in batch):
    - **Rollback** — `git restore` the changed files, end implement-pass with no commit.
-   - **Accept as drift** — emit drift-row in commit message and surface for next session's `drifts-implement.md` write (v1.0 will automate this).
-   - **Update mapping** — route to `/figma-to-code-mapping map <node>` before re-emit.
+   - **Accept** — write drift-row in `drifts-mapping.md` met status `ACCEPTED`. Code blijft staan.
+   - **Update code** — implement past emit aan op user-aanwijzing. Drift-row in `drifts-mapping.md` met status `RESOLVED`.
+   - **Update mapping** — route to `/figma-to-code-mapping map <node>` before re-emit. Drift-row met status `SCHEDULED`.
 
-Mismatch never resolved by inline pixel-fix (rule #11). All three prompt-options keep the drift discipline intact.
+Mismatch never resolved by inline pixel-fix (rule #11). All prompt-options write to `drifts-mapping.md` to keep the decision-loop closed (rule #8).
+
+### B8.6 Post-emit drift-summary in chat
+
+Naast B8 visual diff: print een **drift-summary** voor alle drifts uit deze emit (B8 detectie + mapping's `drifts.md` items in scope). Format:
+
+```
+✓ Emit complete: <file-path>
+▲ <N> drifts surfaced (mapping: X, B8: Y):
+   #1  [Critical][DESIGNER]  (mapping) Font mismatch
+   #2  [Major][DEV]          (B8) padding 16px vs Figma 18px
+   ...
+Per drift: revert / accept / update code / update mapping
+What would you like to do? (per drift or batch)
+```
+
+User reageert per drift of in batch. Implement schrijft elke decision direct naar `drifts-mapping.md`. Drift wordt beslispunt, niet archief.
 
 ## Drift handling
 
