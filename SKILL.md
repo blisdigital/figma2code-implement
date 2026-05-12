@@ -1,6 +1,6 @@
 ---
 name: figma-to-code-implement
-version: "0.3"
+version: "0.5"
 description: >
   Translates Figma designs into working code by consuming the mapping produced by
   `figma-to-code-mapping`. Use this skill when the user says "build this Figma frame",
@@ -55,7 +55,7 @@ Twelve rules that always apply, regardless of step. On conflict between sections
    >
    > On ambiguity: ask.
 
-3. **Single styling API.** Emit using only the API documented in mapping's "Project styling stack" section. Refuse to introduce a parallel paradigm (no className alongside Emotion, no Tailwind in an Emotion project, etc.).
+3. **Single styling API — halt on mismatch (binary).** At the start of B4.3, read `tokens.md § Project styling stack` and hardcode the documented API for the entire emit-pass. **Halt** (do not warn, do not fall back) on any detection of a second styling-API in the same element: no className alongside Emotion, no Tailwind utility in a CSS-modules project, no inline-styles next to styled-components. Refuse is binary — drop the emit-pass, surface the mismatch as B6 check #2 failure, ask user how to resolve (fix mapping, fix MCP-output assumption, or re-run with explicit override).
 
 4. **Translate auto-layout via conventions table.** Apply the table in `tokens.md § Auto-layout conventions` to translate Figma fill/hug/gap/direction to the project's code expression. Never emit fixed pixel widths where Figma is fill or hug — preserve responsiveness intent.
 
@@ -65,11 +65,11 @@ Twelve rules that always apply, regardless of step. On conflict between sections
 
 7. **Verify-queue blocks emit — same per-component spec only.** If `verify-queue.md` has an item linked to the **same per-component spec** as the emit-scope: pause and ask user. Items in other specs do not block (smallest meaningful blocking scope; broader definitions deadlock the user on every implement run). Don't improvise.
 
-8. **Surface mapping-recorded drift — never silently resolve.** Read `drifts.md` and per-component spec drift notes before emit. Drifts in scope are surfaced to the user as design decisions, not silently fixed. Implement does not detect new drift — mapping does that.
+8. **Surface drift — and close the decision loop.** Read `drifts.md` (mapping-owned) and per-component spec drift notes before emit. **After emit-completion, print a drift-summary in chat** with decision-prompt per drift (Rollback / Accept / Update code / Inline-fix-override). User reageert per drift of in batch. Implement writes status updates to **`drifts-mapping.md`** (implement-owned, parallel to mapping's `drifts.md`). Drift wordt beslispunt, niet archief.
 
 9. **Asset discipline.** Existing project assets first, then MCP-localhost URLs, never new icon packages. No `npm install lucide-react`, no `@mui/icons-material` import. No placeholders or TODO comments — when MCP returns an asset URL, use it directly or download once to the project's convention location.
 
-10. **No write outside emit scope.** This skill only emits component/page/route code in the project's source tree. No test files, no docs, no config changes — unless the user explicitly asks. Mapping files (`tokens.md`, `components.md`, `drifts.md`, `verify-queue.md`) are read-only; only the listed exceptions in § Mapping → implement contract permit a propose-to-user write.
+10. **No write outside emit scope.** This skill only emits component/page/route code in the project's source tree. No test files, no docs, no config changes — unless the user explicitly asks. Mapping files (`tokens.md`, `components.md`, `drifts.md`, `verify-queue.md`) are read-only; **exception: implement writes its own `drifts-mapping.md`** (per rule #8, after user-decision per drift). Other propose-to-user writes per § Mapping → implement contract.
 
 11. **No minimal-adjust escape.** Mismatches between Figma and code surface as drift (rule #8), never as inline pixel-fixes. *(Deviates from skills.sh stap 6 which permits minimal-adjust to match visuals. We hold the drift-detection line.)*
 
@@ -114,10 +114,20 @@ Implement is a **read-only consumer** of mapping output. Writes are permitted on
 | `figma-context/<node-id>.json` § `spec_synced_with_files_hash` | Staleness check | B3.0 |
 | `figma-context/<node-id>.json` § `master_verified_via` | Instance-id format recognition | B4.1 |
 
-### Write (propose-to-user only)
+### Write
+
+**Mapping-owned files (`tokens.md`, `components.md`, `drifts.md`, `verify-queue.md`, per-component specs):** read-only. Two propose-to-user exceptions:
 
 1. **B4.1 Path C halt** → propose-to-user to run mapping skill. Implement writes nothing; mapping fills its own files during its own run.
 2. **B4.1 Path B fingerprint-match accepted** → propose to write a drift-row in mapping's `verify-queue.md`: *"Figma element-frame should be component-instance — matched on [signals]"*. Writes only after user confirmation. Follows mapping rule #7.
+
+**Implement-owned file: `drifts-mapping.md`** (per rule #8 + rule #10 exception). Implement writes here directly — no propose-to-user gate, want elke schrijving gebeurt **na** een user-decision in chat (revert/accept/update/override). Schema (parallel aan mapping's `drifts.md` format):
+
+```
+[YYYY-MM-DD] [Severity][Owner] <Origin: B8 / mid-emit / etc.> — <description>. Decision: <revert | accept | update-code | inline-fix-override>. Status: <ACCEPTED | IGNORED | SCHEDULED | RESOLVED>.
+```
+
+Mapping reads `drifts-mapping.md` during its own runs (mapping-side coordination, niet implement-zijde write-target).
 
 ## Slash commands
 
@@ -288,10 +298,11 @@ Walk through every check before producing code. Halt on any failure.
 
 Produce code. No skill-level confirmation gate before emit — the host environment provides the safety nets: Claude Code's permission-system asks per file-write, and the project's PR-review process catches issues before merge to main. A skill-level halt-and-ask would duplicate those gates without adding safety.
 
-**File-path determination:**
-- **Edit existing component file** when B4.1 Path A consumed an existing code-component → the file-path comes from `components.md` (Uses column or co-located spec location). Implement edits, does not create.
-- **Edit existing page/route file** when B5 pattern-search adopted a similar-context file → emit alongside, mirroring the framework's conventions found by the heuristic.
-- **New file required** (no existing component, no similar-context pattern) → halt and ask user for the target path. Implement does not invent file locations or directory structures.
+**File-path determination — read before write:**
+1. **Determine target path** — uit `components.md` (Path A) of B5 pattern-search heuristic.
+2. **Run `Read(target-path)` first.** File-not-found → stap 4. File-found → stap 3.
+3. **Existing file: prefer extend > replace.** Default-actie is `Edit` met minimaal scope, niet `Write` (overschrijven). Bestaande page/component-code blijft staan tenzij de Figma-emit een directe wijziging van die regels vereist. **Twijfel** ("zou ik delen mogen vervangen?") → halt en vraag user expliciete toestemming per regel-range, niet voor het hele bestand tegelijk.
+4. **New file required** (no existing component, no similar-context pattern, file-not-found) → halt and ask user for the target path. Implement does not invent file locations or directory structures.
 
 **Commit / PR traceability blok:**
 
@@ -305,21 +316,48 @@ Emitted to: <file-path>
 
 Allows traceability back to mapping ground-truth at review time.
 
-### B8. Post-emit visual validation
+### B8. Post-emit visual validation — active diff
 
-Compare the emit against the screenshot captured in B3.
+Run actively in the same Claude Code session as B7. Five sub-steps:
 
-| # | Check |
-|---|---|
-| 1 | Layout — spacing, alignment, sizing match the screenshot |
-| 2 | Typography — font-family, size, weight, line-height |
-| 3 | Colors — exact match on token values |
-| 4 | Interactive states render per variant-mapping |
-| 5 | Responsive behavior follows Figma constraints |
-| 6 | Assets render correctly |
-| 7 | Accessibility — aria-labels, alt text, semantic structure |
+- **B8.1 Start dev server.** Use project's documented run-command (`npm run dev`, `pnpm dev`, `bun dev`, etc.). If not running, start in background; if running, reuse existing port. Wait for "ready" output before continuing.
+- **B8.2 Capture rendered screenshot.** Open the rendered route in Claude Code preview (or framework-equivalent), capture as image.
+- **B8.3 Diff against Figma reference.** Compare rendered screenshot against `mcp__Figma__get_screenshot(<nodeId>)` from B3. Generate a delta-list per visual category.
+- **B8.4 7-point check on the diff.** Apply original 7-point checklist to the delta-list, not the rendered screenshot alone. Mark each row as ✓ match, ⚠ minor delta, or ✗ critical delta:
 
-Mismatch found → surface as drift (rule #8), never as inline pixel-fix (rule #11).
+  | # | Check |
+  |---|---|
+  | 1 | Layout — spacing, alignment, sizing match the screenshot |
+  | 2 | Typography — font-family, size, weight, line-height |
+  | 3 | Colors — exact match on token values |
+  | 4 | Interactive states render per variant-mapping |
+  | 5 | Responsive behavior follows Figma constraints |
+  | 6 | Assets render correctly |
+  | 7 | Accessibility — aria-labels, alt text, semantic structure |
+
+- **B8.5 In-session prompt on critical mismatch.** If ≥1 ✗ critical delta: do not let the emit pass without user-decision. Prompt (per drift of in batch):
+   - **Rollback** — `git restore` the changed files, end implement-pass with no commit.
+   - **Accept** — write drift-row in `drifts-mapping.md` met status `ACCEPTED`. Code blijft staan.
+   - **Update code** — implement past emit aan op user-aanwijzing. Drift-row in `drifts-mapping.md` met status `RESOLVED`.
+   - **Update mapping** — route to `/figma-to-code-mapping map <node>` before re-emit. Drift-row met status `SCHEDULED`.
+
+Mismatch never resolved by inline pixel-fix (rule #11). All prompt-options write to `drifts-mapping.md` to keep the decision-loop closed (rule #8).
+
+### B8.6 Post-emit drift-summary in chat
+
+Naast B8 visual diff: print een **drift-summary** voor alle drifts uit deze emit (B8 detectie + mapping's `drifts.md` items in scope). Format:
+
+```
+✓ Emit complete: <file-path>
+▲ <N> drifts surfaced (mapping: X, B8: Y):
+   #1  [Critical][DESIGNER]  (mapping) Font mismatch
+   #2  [Major][DEV]          (B8) padding 16px vs Figma 18px
+   ...
+Per drift: revert / accept / update code / update mapping
+What would you like to do? (per drift or batch)
+```
+
+User reageert per drift of in batch. Implement schrijft elke decision direct naar `drifts-mapping.md`. Drift wordt beslispunt, niet archief.
 
 ## Drift handling
 
