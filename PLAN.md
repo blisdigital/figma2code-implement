@@ -304,6 +304,4 @@ Deze landen niet in SKILL.md. Antwoord vóór Fase 2 om verlamming te voorkomen.
 
 **Fase 0 (planning) — in progress.** Dit document + proposal zijn de entry points wanneer we beginnen aan Fase 1.
 
-**Owner:** Kevin Rutten.
-
 **Estimated effort to first usable version:** 5-7 sessies + dogfood-pass op een echt project. Schaal vergelijkbaar met v3.0 mapping skill.

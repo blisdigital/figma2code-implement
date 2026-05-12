@@ -1,6 +1,6 @@
 # Post-emit visual check (B8)
 
-Skill-internal format that Claude walks at B8 after emit. Compares produced code against the screenshot captured in B3 (or refreshed at emit time).
+Skill-internal format that Claude walks at B8 after emit. **Active diff** in the same Claude Code session as B7. Compares produced code against the screenshot captured in B3 (or refreshed at emit time).
 
 Mismatch found → surface as drift (rule #8). **Never** apply inline pixel-fix (rule #11).
 
@@ -8,9 +8,19 @@ Not copied to project repo. Never edited by the user.
 
 ---
 
-## The 7-point check
+## Five sub-steps (v0.4 active flow)
 
-For each item: mark ✅ match or ❌ mismatch with a one-line note. Capture the comparison evidence (which element, what differs, by how much).
+- **B8.1 Start dev server.** Use project's documented run-command (`npm run dev`, `pnpm dev`, `bun dev`, etc.). If not running, start in background; if running, reuse existing port. Wait for "ready" output before continuing.
+- **B8.2 Capture rendered screenshot.** Open the rendered route in Claude Code preview (or framework-equivalent), capture as image.
+- **B8.3 Diff against Figma reference.** Compare rendered screenshot against `mcp__Figma__get_screenshot(<nodeId>)` from B3. Generate a delta-list per visual category.
+- **B8.4 7-point check on the diff** (see table below). Apply to the delta-list, not the rendered screenshot alone.
+- **B8.5 In-session prompt on critical mismatch.** If ≥1 ✗ critical delta: do not let the emit pass without user-decision.
+
+---
+
+## The 7-point check (B8.4)
+
+For each item: mark ✅ match, ⚠ minor delta, or ✗ critical delta with a one-line note. Capture the comparison evidence (which element, what differs, by how much).
 
 | # | Check | Status | Note |
 |---|---|---|---|
@@ -36,18 +46,20 @@ Full table reported. Then a summary block:
 ✅ B8 visual validation passed. <N>/7 checks confirmed.
 ```
 
-**On mismatch (1+ mismatches):**
+**On mismatch (1+ mismatches) — B8.5 in-session prompt:**
 ```
 ⚠️ B8 visual validation: <X> mismatch(es) detected.
 
-Mismatches:
+Critical deltas:
 - #<check-N>: <specific divergence, e.g. "padding 16px in code vs 18px in screenshot">
 
-Resolution: surface as drift per rule #8. Do NOT apply inline pixel-fix (rule #11).
-
-Next step: user decides — accept code value (figma updates needed) or update mapping
-(run /figma-to-code-mapping map X to reflect screenshot reality and re-emit).
+What would you like to do?
+- Rollback — git restore changed files, end implement-pass with no commit
+- Accept as drift — emit drift-row in commit message (v1.0 will write to drifts-implement.md)
+- Update mapping — route to /figma-to-code-mapping map <node> before re-emit
 ```
+
+Mismatch never resolved by inline pixel-fix (rule #11). All three prompt-options keep the drift discipline intact.
 
 ## Why NOT auto-fix
 

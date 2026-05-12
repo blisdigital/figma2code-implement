@@ -1,6 +1,6 @@
 ---
 name: figma-to-code-implement
-version: "0.3"
+version: "0.4"
 description: >
   Translates Figma designs into working code by consuming the mapping produced by
   `figma-to-code-mapping`. Use this skill when the user says "build this Figma frame",
@@ -55,7 +55,7 @@ Twelve rules that always apply, regardless of step. On conflict between sections
    >
    > On ambiguity: ask.
 
-3. **Single styling API.** Emit using only the API documented in mapping's "Project styling stack" section. Refuse to introduce a parallel paradigm (no className alongside Emotion, no Tailwind in an Emotion project, etc.).
+3. **Single styling API — halt on mismatch (binary).** At the start of B4.3, read `tokens.md § Project styling stack` and hardcode the documented API for the entire emit-pass. **Halt** (do not warn, do not fall back) on any detection of a second styling-API in the same element: no className alongside Emotion, no Tailwind utility in a CSS-modules project, no inline-styles next to styled-components. Refuse is binary — drop the emit-pass, surface the mismatch as B6 check #2 failure, ask user how to resolve (fix mapping, fix MCP-output assumption, or re-run with explicit override).
 
 4. **Translate auto-layout via conventions table.** Apply the table in `tokens.md § Auto-layout conventions` to translate Figma fill/hug/gap/direction to the project's code expression. Never emit fixed pixel widths where Figma is fill or hug — preserve responsiveness intent.
 
@@ -288,10 +288,11 @@ Walk through every check before producing code. Halt on any failure.
 
 Produce code. No skill-level confirmation gate before emit — the host environment provides the safety nets: Claude Code's permission-system asks per file-write, and the project's PR-review process catches issues before merge to main. A skill-level halt-and-ask would duplicate those gates without adding safety.
 
-**File-path determination:**
-- **Edit existing component file** when B4.1 Path A consumed an existing code-component → the file-path comes from `components.md` (Uses column or co-located spec location). Implement edits, does not create.
-- **Edit existing page/route file** when B5 pattern-search adopted a similar-context file → emit alongside, mirroring the framework's conventions found by the heuristic.
-- **New file required** (no existing component, no similar-context pattern) → halt and ask user for the target path. Implement does not invent file locations or directory structures.
+**File-path determination — read before write:**
+1. **Determine target path** — uit `components.md` (Path A) of B5 pattern-search heuristic.
+2. **Run `Read(target-path)` first.** File-not-found → stap 4. File-found → stap 3.
+3. **Existing file: prefer extend > replace.** Default-actie is `Edit` met minimaal scope, niet `Write` (overschrijven). Bestaande page/component-code blijft staan tenzij de Figma-emit een directe wijziging van die regels vereist. **Twijfel** ("zou ik delen mogen vervangen?") → halt en vraag user expliciete toestemming per regel-range, niet voor het hele bestand tegelijk.
+4. **New file required** (no existing component, no similar-context pattern, file-not-found) → halt and ask user for the target path. Implement does not invent file locations or directory structures.
 
 **Commit / PR traceability blok:**
 
@@ -305,21 +306,31 @@ Emitted to: <file-path>
 
 Allows traceability back to mapping ground-truth at review time.
 
-### B8. Post-emit visual validation
+### B8. Post-emit visual validation — active diff
 
-Compare the emit against the screenshot captured in B3.
+Run actively in the same Claude Code session as B7. Five sub-steps:
 
-| # | Check |
-|---|---|
-| 1 | Layout — spacing, alignment, sizing match the screenshot |
-| 2 | Typography — font-family, size, weight, line-height |
-| 3 | Colors — exact match on token values |
-| 4 | Interactive states render per variant-mapping |
-| 5 | Responsive behavior follows Figma constraints |
-| 6 | Assets render correctly |
-| 7 | Accessibility — aria-labels, alt text, semantic structure |
+- **B8.1 Start dev server.** Use project's documented run-command (`npm run dev`, `pnpm dev`, `bun dev`, etc.). If not running, start in background; if running, reuse existing port. Wait for "ready" output before continuing.
+- **B8.2 Capture rendered screenshot.** Open the rendered route in Claude Code preview (or framework-equivalent), capture as image.
+- **B8.3 Diff against Figma reference.** Compare rendered screenshot against `mcp__Figma__get_screenshot(<nodeId>)` from B3. Generate a delta-list per visual category.
+- **B8.4 7-point check on the diff.** Apply original 7-point checklist to the delta-list, not the rendered screenshot alone. Mark each row as ✓ match, ⚠ minor delta, or ✗ critical delta:
 
-Mismatch found → surface as drift (rule #8), never as inline pixel-fix (rule #11).
+  | # | Check |
+  |---|---|
+  | 1 | Layout — spacing, alignment, sizing match the screenshot |
+  | 2 | Typography — font-family, size, weight, line-height |
+  | 3 | Colors — exact match on token values |
+  | 4 | Interactive states render per variant-mapping |
+  | 5 | Responsive behavior follows Figma constraints |
+  | 6 | Assets render correctly |
+  | 7 | Accessibility — aria-labels, alt text, semantic structure |
+
+- **B8.5 In-session prompt on critical mismatch.** If ≥1 ✗ critical delta: do not let the emit pass without user-decision. Prompt:
+   - **Rollback** — `git restore` the changed files, end implement-pass with no commit.
+   - **Accept as drift** — emit drift-row in commit message and surface for next session's `drifts-implement.md` write (v1.0 will automate this).
+   - **Update mapping** — route to `/figma-to-code-mapping map <node>` before re-emit.
+
+Mismatch never resolved by inline pixel-fix (rule #11). All three prompt-options keep the drift discipline intact.
 
 ## Drift handling
 
