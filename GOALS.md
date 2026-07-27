@@ -47,3 +47,15 @@
 | Date | Skill version | O0 | O1 | O2 | O3 | O4 | O5 (✗/⚠) | Notes |
 |---|---|---|---|---|---|---|---|---|
 | _pre-skill_ | none (bare MCP / mapping-only) | ✗ | ✗ | ✗ | ✗ | ✗ | n/a | the 2026-05-08 baseline: 6/6 failure modes observed |
+| 2026-07-27 | 0.5 | ✓ | ✗ | ✓ | ✓ | ✓ | not measurable | Baseline run. See notes below. |
+
+### Run notes — 2026-07-27 baseline (v0.5)
+
+- **O0 ✓** — B1 halted on the unmapped node, routed to mapping, 0 files written. Fixture prep then ran the mapping skill (error-page spec + cache + 3 new drifts + 3 verify items — kept as permanent fixture improvement).
+- **O1 ✗** — two components: (a) *scorecard calibration*: 1 color literal `#F4F7F9`, but hoisted + verdict-backed (`token-mismatch` drift documented) — the O1 color check should allow verdict-backed hoists, mirroring the px rule; (b) *genuine gap*: ~50 inline px literals for illustration/absolute geometry (448.5px, 987px, layer positions) with no hoist path and no verdict home — rule #2 covers style tokens, but decorative geometry has no rule. Substantive fail.
+- **O2 ✓** — 0 second-styling-API occurrences (pure Emotion; Figma MCP's Tailwind reference output fully translated).
+- **O3 ✓** — all 4 literal strings exact match with spec § Literal strings.
+- **O4 ✓** — only intended files touched (error-pages.tsx edit + co-located styles file per loading-page.styles.ts precedent); BrokenPage/NoAccessPage/UnwelcomeBanner intact; no cache files staged.
+- **O5 not measurable** — fixture codebase is a source-only snapshot (no package.json/deps): B8.1–B8.5 cannot run. Neither can any machine contract check (no lint/typecheck available). Fixture limitation to fix or accept.
+- **Halt-behavior observed:** B6 check #6 (verify-queue items on same spec) and check #7 (Critical redesign drift) both fired correctly — real runs wait for the user there; test proceeded under standing test authorization as the update-code decision.
+- **Schema drift fixture ↔ skills** (surfaced for free): cache folder `figma-mcp-context/` vs skill's `figma-context/`; tokens.md 4-column format without verdict column; specs in `figma-to-code-mapping/components/` not co-located; cache git-tracked while mapping setup mandates gitignore.
