@@ -25,3 +25,18 @@ Proposal: Dogfood v0.4 on a real implement-pass before adding v0.5 (design-fidel
 Situation: v0.4 audit-fixes (B7 read-before-write, rule #3 binary halt, B8 active diff) sluit niet de drift loop-closing gap — drifts blijven in mapping's `drifts.md` archief zonder structureel beslispunt. Architectuur-analyse toont: detectie + logging klaar, surfacing aan beslisser + decision-routing + status-update ontbreken.
 What worked: Rule #8 uitgebreid naar drift-summary in chat na emit met decision-prompt per drift. Rule #10 uitzondering voor `drifts-mapping.md` (implement-owned, parallel aan mapping's `drifts.md`). § Write contract uitgebreid. B8.5 prompt + nieuwe B8.6 drift-summary step. Implement is self-sufficient — geen mapping-coordination nodig voor v0.5 ship.
 Proposal: Bump v0.4 → v0.5 met loop-closing erin. Originally v1.0 scope, maar onafhankelijk van mapping coordination via aparte file. Dogfood-pass valideert of de loop in praktijk werkt.
+
+[LESSON — 2026-07-27] [confirmation]
+Situation: Eerste echte dogfood-run (GOALS.md Goal 1): volledige emit-pass op het WorQX 404-fixture met v0.5, gescoord op scorecard O0-O5.
+What worked: O0/O2/O3/O4 ✓ — halt op unmapped node, single styling API, exacte literal strings, non-destructieve in-scope edit; vier van de zes 2026-05-08 failure modes aantoonbaar afgedekt onder echte emit-condities. B6-halts (verify-queue + Critical drift) vuurden correct.
+Proposal: Rule-set houden; scorecard-runs herhalen per versie-bump (run log in GOALS.md).
+
+[LESSON — 2026-07-27] [correction]
+Situation: O1 faalde in de baseline-run: illustratie/absolute-geometrie emitteerde ~50 inline px-literals (layer-posities, 448.5px, 987px) — geen hoist-pad, geen verdict-thuis; rule #2 dekt alleen stijl-tokens.
+What did not work: Emit-discipline heeft geen regel voor decoratieve geometrie; daarnaast telt de O1-kleurcheck verdict-backed hoists (#F4F7F9 met token-mismatch-drift) onterecht als fail — scorecard-calibratie nodig.
+Proposal: Rule #2 verhelderen (of mapping-side illustratie-geometrie-conventie) + O1-kleurcheck gelijktrekken met de px-regel (verdict-backed hoist = pass).
+
+[LESSON — 2026-07-27] [correction]
+Situation: B8 was in de baseline-run dead-on-arrival: fixture-codebase is een source-only snapshot (geen package.json/deps) — B8.1-B8.5 én elke lint/typecheck onmogelijk; O5 unmeasurable.
+What did not work: B8 veronderstelt stilzwijgend een runnable project en degradeert zonder expliciet verdict; ook de geplande v0.6 B8.0 machine-contract check heeft een gedefinieerde fallback nodig ("geen tooling beschikbaar" = expliciete uitkomst, geen stille skip).
+Proposal: B8 een expliciet "not executable — reden" verdict geven; fixture runnable maken of O5 als known-unmeasurable accepteren.
